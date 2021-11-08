@@ -1,0 +1,193 @@
+#!/usr/bin/env python
+
+"""For importing evolearner in this script, assuming EvoLearner is in the evolearner directory in learningsystems"""
+import sys
+import os
+import random
+sys.path.append(os.path.join(os.path.dirname(__file__), 'EvoLearner'))
+
+import argparse
+import time
+import signal
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
+import logging
+
+from evolearner.evo_learner import EvoLearner
+from evolearner.base import KnowledgeBase
+from evolearner import fitness_functions
+from evolearner import gen_trees
+from deap import tools, gp
+
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+_log = logging.getLogger()
+
+
+def read_pos_neg_examples(file_pos, file_neg):
+    pos = []
+    neg = []
+
+    # pos
+    with open(file_pos) as in_file:
+        for line in in_file:
+            line = line.strip()
+
+            if line:
+                pos.append(line)
+
+    # neg
+    with open(file_neg) as in_file:
+        for line in in_file:
+            line = line.strip()
+
+            if line:
+                neg.append(line)
+
+    return pos, neg
+
+def read_config(path):
+    settings = {}
+    
+    with open(path) as file:
+    	prop_list = [line.split("=") for line in file.readlines()]
+    	settings = {key.strip(): value.strip() for key, value in prop_list}
+
+    return settings
+
+def best_hypotheses(evo, n=5):
+    assert evo.result_population is not None
+    assert len(evo.result_population) > 0
+    best_inds = tools.selBest(evo.result_population, k=n, fit_attr="fitness")
+    return best_inds
+
+def handler(signum, frame):
+	_log.debug('Interrupting EvoLearner Training Process')
+	raise Exception('Maximum Execution Time Limit Reached for EvoLearner')
+
+if __name__ == '__main__':
+    #Default values
+    max_neighbours = 2
+    expressivity = "ALCN(D)"
+    init_method = "random_walk"
+    random_max_height = 6
+    mutation = None
+    random_walk_type = True
+    random_walk_paths = True
+
+    if os.path.isfile("evo_config.prop"):
+        settings = read_config("evo_config.prop")
+
+        if "seed" in settings:
+            random.seed(int(settings["seed"]))
+            _log.debug('Seed is %s' % settings["seed"])
+
+        if "max_neighbours" in settings:
+            max_neighbours = int(settings["max_neighbours"])
+            _log.debug('Max neighbours is %s' % settings["max_neighbours"])
+        
+        if "mutation" in settings:
+            mutation = settings["mutation"]
+            _log.debug('Mutation is %s' % settings["mutation"])
+
+        if "expressivity" in settings:
+            expressivity = settings["expressivity"]
+            _log.debug('Expressivity is %s' % settings["expressivity"])
+
+        if "init_method" in settings:
+            init_method = settings["init_method"]
+            _log.debug('Init method is %s' % settings["init_method"])
+
+        if "random_max_height" in settings:
+            random_max_height = int(settings["random_max_height"])
+            _log.debug('Random max height is %s' % settings["random_max_height"])
+
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('config_file')
+    args = argparser.parse_args()
+
+    cfg = read_config(args.config_file)
+
+    learning_task_id = cfg['learningtask']
+    learning_problem_id = cfg['learningproblem']
+    _log.debug('Running learning task %s with learning problem %s' % (
+        learning_task_id, learning_problem_id))
+
+    target_dir = cfg['filename.workdir']
+    output_file = cfg['filename.output']
+    max_exec_time = cfg['maxExecutionTime']
+    output_file_path = os.path.join(target_dir, output_file)
+
+    _log.debug('Target dir is %s' % target_dir)
+
+    # Setup for EvoLearner
+    learning_task_dir_name = 'learningtasks'
+    owl_dir_name = 'owl'
+    data_dir_name = 'data'
+    data_dir = os.path.join('..', '..', learning_task_dir_name, learning_task_id, owl_dir_name, data_dir_name)
+
+    f_name = os.listdir(data_dir)[0]
+    if f_name.endswith('.owl'):
+        owl_file_path = os.path.join(data_dir, f_name)
+        _log.debug('Path to OWL KnowledgeBase is %s' % owl_file_path)
+    else:
+    	_log.debug('No OWL KnowledgeBase found on path %s' % owl_file_path)
+
+    pos_examples, neg_examples = read_pos_neg_examples(cfg['filename.pos'], cfg['filename.neg'])
+    # _log.debug('Positive Examples: %s' % str(pos_examples))
+    # _log.debug('Negative Examples: %s' % str(neg_examples))
+    loading_time = 200
+    actual_train_time = int(max_exec_time) - loading_time
+    signal.signal(signal.SIGALRM, handler)
+
+    # Code for running evolearner
+    # _log.debug('Log Output before initializing the kb object')
+    kb = KnowledgeBase(path=owl_file_path)
+    # _log.debug('Log Output after initializing the kb object')
+    
+    # init_method = "random_walk", "random_walk_wo_types", random_walk_wo_paths", 
+    #               "random_full",  "random_grow", "random_rhh", 
+    # random_max_height = 2, 4, 6, 8, 10
+
+    if init_method == "random_walk_wo_type":
+        init_method = "random_walk"
+        random_walk_type = False
+
+    if init_method == "random_walk_wo_paths":
+        init_method = "random_walk"
+        random_walk_paths = False
+
+    evo = EvoLearner(kb, terminate_on_goal=False, max_r=max_neighbours,
+                     expressivity=expressivity, init_method=init_method,
+                     random_max_height=random_max_height, random_walk_type=random_walk_type,
+                     random_walk_paths=random_walk_paths)
+
+    if mutation == "nodeReplacement":
+        evo.register_op("mutate", gp.mutNodeReplacement, pset=evo.pset)
+    elif mutation == "shrink":
+        evo.register_op("mutate", gp.mutShrink)
+    elif mutation == "insert":
+        evo.register_op("mutate", gp.mutInsert, pset=evo.pset)
+    elif mutation == "crossleafbiased":
+        evo.register_op("mate", gen_trees.cxOnePointLeafBiased, termpb=0.1)
+
+    signal.alarm(actual_train_time)
+    try:
+    	_log.debug('Log Output before calling the fit function')
+    	evo.fit(pos_examples, neg_examples, verbose=False)
+    except Exception as exc: 
+    	_log.debug(exc)
+    finally:
+        signal.alarm(0)
+
+    best = best_hypotheses(evo, n=1)[0]
+
+    with open(output_file_path, 'w') as out:
+    	out.write(str(best) + "\n")
+
+    _log.debug('EvoLearner run finished.')
+    _log.debug('Results written to %s' % output_file_path)

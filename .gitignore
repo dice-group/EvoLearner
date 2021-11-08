@@ -1,0 +1,42 @@
+*.class
+__pycache__/
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+/target/
+
+# ide-related
+.classpath
+.project
+.settings/
+.idea/
+venv/
+*.iml
+*.egg
+*.egg-info
+catalog-v001.xml
+.DS-Store
+
+# tmp files
+*.swp
+*.swo
+*~
+learningsystems/aleph/Linux-x86_64/
+learningsystems/aleph/aleph.pl
+learningsystems/dllearner/dllearner-*/
+learningsystems/dllearner_ocel/dllearner-*/
+learningsystems/golem/Linux-x86_64/
+sml-temp*
+learningsystems/progolem/source/*
+learningsystems/dllearner/log
+learningsystems/progol/progol
+
+# log files (PW: Not sure whether this is breaks something. If so, feel free to remove it.)
+*.log

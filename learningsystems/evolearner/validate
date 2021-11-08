@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+"""For importing evolearner in this script, assuming EvoLearner is in the evolearner directory in learningsystems"""
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'EvoLearner'))
+
+import argparse
+import time
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+
+import logging
+
+from evolearner.evo_learner import EvoLearner
+from evolearner.base import KnowledgeBase
+from deap import gp
+from deap import creator
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(message)s')
+_log = logging.getLogger()
+
+def read_pos_neg_examples(file_pos, file_neg):
+    pos = []
+    neg = []
+
+    # pos
+    with open(file_pos) as in_file:
+        for line in in_file:
+            line = line.strip()
+
+            if line:
+                pos.append(line)
+
+    # neg
+    with open(file_neg) as in_file:
+        for line in in_file:
+            line = line.strip()
+
+            if line:
+                neg.append(line)
+
+    return pos, neg
+
+def read_config(path):
+    settings = {}
+    
+    with open(path) as file:
+        prop_list = [line.split("=") for line in file.readlines()]
+        settings = {key.strip(): value.strip() for key, value in prop_list}
+
+    return settings
+
+def validate(evo_obj, results, pos_examples, neg_examples):
+    pos = evo_obj._parse_examples(pos_examples)
+    neg = evo_obj._parse_examples(neg_examples)
+
+    # ind = creator.Individual(results[0])
+    concept = gp.compile(results[0], evo_obj.pset)
+
+    # _log.debug('The compiled concept is %s' % concept)
+
+    instances = concept.instances
+
+    tp = len(pos.intersection(instances))
+    fp = len(neg.intersection(instances))
+    tn = len(neg.difference(instances))
+    fn = len(pos.difference(instances))
+
+    return tp, fp, tn, fn
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument('config_file')
+    args = argparser.parse_args()
+
+    cfg = read_config(args.config_file)
+
+    learning_task_id = cfg['learningtask']
+    learning_problem_id = cfg['learningproblem']
+    input_file = cfg['filename.input']
+    output_file_name = cfg['filename.output']
+    _log.debug('Validating solution learning task %s with learning '
+               'problem %s' % (learning_task_id, learning_problem_id))
+
+    results = []
+    with open(input_file) as res:
+        for line in res:
+            results.append(line.strip())
+
+    _log.debug('Result read is %s' % results[0])    
+
+    # file_name_base = learning_task_id + '_' + learning_problem_id
+    target_dir = cfg['filename.workdir']
+    pos_examples_file_path = cfg['filename.pos']
+    neg_examples_file_path = cfg['filename.neg']
+
+    _log.debug('Target dir is %s' % target_dir)
+
+    # Knowledge Base Path
+    learning_task_dir_name = 'learningtasks'
+    owl_dir_name = 'owl'
+    data_dir_name = 'data'
+    expressivity = ''
+    data_dir = os.path.join('..', '..', learning_task_dir_name, learning_task_id, owl_dir_name, data_dir_name)
+
+    _log.debug('Expressivity for dataset %s is set to %s' % (learning_task_id, expressivity))
+
+    f_name = os.listdir(data_dir)[0]
+    if f_name.endswith('.owl'):
+        owl_file_path = os.path.join(data_dir, f_name)
+        _log.debug('Path to OWL KnowledgeBase is %s' % owl_file_path)
+    else:
+        _log.debug('No OWL KnowledgeBase found on path %s' % owl_file_path)
+
+    pos_examples, neg_examples = read_pos_neg_examples(pos_examples_file_path, neg_examples_file_path)
+    
+    kb = KnowledgeBase(path=owl_file_path)
+    evo = EvoLearner(kb, terminate_on_goal=True)
+
+    num_tp, num_fp, num_tn, num_fn = validate(evo, results, pos_examples, neg_examples)
+
+    with open(output_file_name, 'w') as f:
+        f.write('tp: %i' % num_tp + os.linesep +
+                'fp: %i' % num_fp + os.linesep +
+                'tn: %i' % num_tn + os.linesep +
+                'fn: %i' % num_fn + os.linesep)
+
+    _log.debug('EvoLearner validation finished.')
+    _log.debug('Results written to %s' % output_file_name)

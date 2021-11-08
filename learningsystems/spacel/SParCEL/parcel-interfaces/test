@@ -1,0 +1,19 @@
+#!/bin/bash
+quote_examples() {
+    sed -e 's.^.".' -e 's.$.",.' | sed -e '$ s/.$//'
+}
+
+read_examples() {
+    # remove blank & comment lines
+    grep -v '^\s*\(;\|\s*$\)' "$1" | quote_examples
+}
+
+add_to_config() {
+    config_line=$1
+    config_file=$2
+    echo "$config_line" >> "$config_file"
+}
+
+add_to_config "cli.cov = {" "$2"
+add_to_config "$(read_examples $1)" "$2"
+add_to_config "}" "$2"
