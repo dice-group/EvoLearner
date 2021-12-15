@@ -52,10 +52,9 @@ def read_pos_neg_examples(file_pos, file_neg):
 
 def read_config(path):
     settings = {}
-    
     with open(path) as file:
-    	prop_list = [line.split("=") for line in file.readlines()]
-    	settings = {key.strip(): value.strip() for key, value in prop_list}
+        prop_list = [line.split("=") for line in file.readlines()]
+        settings = {key.strip(): value.strip() for key, value in prop_list}
 
     return settings
 
@@ -66,8 +65,8 @@ def best_hypotheses(evo, n=5):
     return best_inds
 
 def handler(signum, frame):
-	_log.debug('Interrupting EvoLearner Training Process')
-	raise Exception('Maximum Execution Time Limit Reached for EvoLearner')
+    _log.debug('Interrupting EvoLearner Training Process')
+    raise Exception('Maximum Execution Time Limit Reached for EvoLearner')
 
 if __name__ == '__main__':
     #Default values
@@ -75,6 +74,7 @@ if __name__ == '__main__':
     expressivity = "ALCN(D)"
     init_method = "random_walk"
     random_max_height = 6
+    x = 2048
     mutation = None
     random_walk_type = True
     random_walk_paths = True
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         if "max_neighbours" in settings:
             max_neighbours = int(settings["max_neighbours"])
             _log.debug('Max neighbours is %s' % settings["max_neighbours"])
-        
+
         if "mutation" in settings:
             mutation = settings["mutation"]
             _log.debug('Mutation is %s' % settings["mutation"])
@@ -105,6 +105,10 @@ if __name__ == '__main__':
         if "random_max_height" in settings:
             random_max_height = int(settings["random_max_height"])
             _log.debug('Random max height is %s' % settings["random_max_height"])
+
+        if "x" in settings:
+            x = int(settings["x"])
+            _log.debug('X is %s' % settings["x"])
 
     argparser = argparse.ArgumentParser()
     argparser.add_argument('config_file')
@@ -164,7 +168,7 @@ if __name__ == '__main__':
     evo = EvoLearner(kb, terminate_on_goal=False, max_r=max_neighbours,
                      expressivity=expressivity, init_method=init_method,
                      random_max_height=random_max_height, random_walk_type=random_walk_type,
-                     random_walk_paths=random_walk_paths)
+                     random_walk_paths=random_walk_paths, x=x)
 
     if mutation == "nodeReplacement":
         evo.register_op("mutate", gp.mutNodeReplacement, pset=evo.pset)

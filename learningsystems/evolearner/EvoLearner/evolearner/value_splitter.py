@@ -26,6 +26,7 @@ class DefaultValueSplitter:
         all_values = set(pairs.values())
         return self._compute_split_values(property_, all_values)
 
+    # adapted from: https://github.com/SmartDataAnalytics/DL-Learner/blob/develop/components-core/src/main/java/org/dllearner/utilities/split/AbstractValuesSplitter.java
     def _compute_split_values(self, property_, all_values):
         splits_dp = set()
 

@@ -14,6 +14,8 @@ if __name__ == "__main__":
         frame = frame.set_axis(['mutUniform', 'mutShrink', 'mutNodeReplacement', 'mutInsert', 'crossLeafBiased'], axis=0)
     elif 'random_fullf1' in sys.argv:
         frame = frame.set_axis(['Random Walk', 'Grow', 'Full', 'Ramped'], axis=0)
+    elif '8192f1' in sys.argv:
+        frame = frame.set_axis(['8192', '4096', '2048', '1024', '512', '256', '128', '64', '32'], axis=0)
     else:
         frame = frame.set_axis(['Random Walk', 'Without Paths', 'Without Types', 'Without Random Walk'], axis=0)
 

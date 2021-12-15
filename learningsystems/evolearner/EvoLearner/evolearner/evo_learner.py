@@ -29,6 +29,7 @@ class EvoLearner:
                  population_size=800,
                  ngen=200,
                  max_r=2,
+                 x=2048,
                  max_nr_splits=10,
                  max_cardinality=5,
                  random_max_height=6,
@@ -46,6 +47,7 @@ class EvoLearner:
         self.random_max_height = random_max_height
         self.ngen = ngen
         self.max_r = max_r
+        self.x = x
         self.init_method = init_method
         self.population_size = population_size
         self.max_nr_splits = max_nr_splits
@@ -326,7 +328,7 @@ class EvoLearner:
         concept = gp.compile(individual, self.pset)
         quality = self.quality_func(concept, self.pos, self.neg)
         individual.quality.values = (quality,)
-        fitness = self.heuristic_func(individual, concept, self.pos, self.neg)
+        fitness = self.heuristic_func(individual, concept, self.pos, self.neg, x=self.x)
         individual.fitness.values = (fitness,)
 
     def print_top_n_individuals(self, individuals, top_n=5, key='fitness'):
