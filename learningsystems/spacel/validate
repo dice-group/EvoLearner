@@ -99,7 +99,7 @@ add_to_config "$(read_examples $smlb_filename__neg)" "$config_file"
 add_to_config "}" "$config_file"
 
 
-java -jar parcel-cli.jar "$config_file" | tee "$tmpdir"/output.log
+java -jar SParCEL/parcel-cli.jar "$config_file" | tee "$tmpdir"/output.log
 
 grep '#EVAL#' "$tmpdir"/output.log \
         | sed -e 's,^#EVAL# ,,' > "$smlb_filename__output"

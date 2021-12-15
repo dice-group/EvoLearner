@@ -133,7 +133,7 @@ add_to_config "$lp_const.negativeExamples = {" "$config_file"
 add_to_config "$(read_examples $smlb_filename__neg)" "$config_file"
 add_to_config "}" "$config_file"
 
-java -jar parcel-cli.jar "$config_file" | tee "$tmpdir"/output.log
+java -jar SParCEL/parcel-cli.jar "$config_file" | tee "$tmpdir"/output.log
 
 # parse the best result
 grep '^#RESULT# ' "$tmpdir"/output.log | sed -e 's,^#RESULT# ,,' > "$smlb_filename__output"

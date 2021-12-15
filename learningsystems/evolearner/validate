@@ -47,7 +47,6 @@ def read_pos_neg_examples(file_pos, file_neg):
 
 def read_config(path):
     settings = {}
-    
     with open(path) as file:
         prop_list = [line.split("=") for line in file.readlines()]
         settings = {key.strip(): value.strip() for key, value in prop_list}
@@ -58,10 +57,7 @@ def validate(evo_obj, results, pos_examples, neg_examples):
     pos = evo_obj._parse_examples(pos_examples)
     neg = evo_obj._parse_examples(neg_examples)
 
-    # ind = creator.Individual(results[0])
     concept = gp.compile(results[0], evo_obj.pset)
-
-    # _log.debug('The compiled concept is %s' % concept)
 
     instances = concept.instances
 
@@ -117,7 +113,6 @@ if __name__ == '__main__':
         _log.debug('No OWL KnowledgeBase found on path %s' % owl_file_path)
 
     pos_examples, neg_examples = read_pos_neg_examples(pos_examples_file_path, neg_examples_file_path)
-    
     kb = KnowledgeBase(path=owl_file_path)
     evo = EvoLearner(kb, terminate_on_goal=True)
 

@@ -128,7 +128,6 @@ if __name__ == '__main__':
 
     _log.debug('Target dir is %s' % target_dir)
 
-    # Setup for EvoLearner
     learning_task_dir_name = 'learningtasks'
     owl_dir_name = 'owl'
     data_dir_name = 'data'
@@ -142,17 +141,12 @@ if __name__ == '__main__':
     	_log.debug('No OWL KnowledgeBase found on path %s' % owl_file_path)
 
     pos_examples, neg_examples = read_pos_neg_examples(cfg['filename.pos'], cfg['filename.neg'])
-    # _log.debug('Positive Examples: %s' % str(pos_examples))
-    # _log.debug('Negative Examples: %s' % str(neg_examples))
     loading_time = 200
     actual_train_time = int(max_exec_time) - loading_time
     signal.signal(signal.SIGALRM, handler)
 
     # Code for running evolearner
-    # _log.debug('Log Output before initializing the kb object')
     kb = KnowledgeBase(path=owl_file_path)
-    # _log.debug('Log Output after initializing the kb object')
-    
     # init_method = "random_walk", "random_walk_wo_types", random_walk_wo_paths", 
     #               "random_full",  "random_grow", "random_rhh", 
     # random_max_height = 2, 4, 6, 8, 10
@@ -181,17 +175,17 @@ if __name__ == '__main__':
 
     signal.alarm(actual_train_time)
     try:
-    	_log.debug('Log Output before calling the fit function')
-    	evo.fit(pos_examples, neg_examples, verbose=False)
+        _log.debug('Log Output before calling the fit function')
+        evo.fit(pos_examples, neg_examples, verbose=False)
     except Exception as exc: 
-    	_log.debug(exc)
+        _log.debug(exc)
     finally:
         signal.alarm(0)
 
     best = best_hypotheses(evo, n=1)[0]
 
     with open(output_file_path, 'w') as out:
-    	out.write(str(best) + "\n")
+        out.write(str(best) + "\n")
 
     _log.debug('EvoLearner run finished.')
     _log.debug('Results written to %s' % output_file_path)
