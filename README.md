@@ -109,6 +109,24 @@ Some solutions that were found by the systems for the `Uncle` learning problem:
 
 - Perfect solution on training and test data but a bit longer than necessary (Male expressed as ¬Female, and ¬Female expressed two times)
 
+## Results After Initialization
+
+The following table compares the final F1-measure of EvoLearner with the F1-measure
+
+directly after the initialization. (so without running the evolutionary algorithm)
+
+|   | After Initialization | Complete |
+|:--|:--:|:--:|
+| Carcinogenesis   | 0.59 | 0.70 |
+| Uncle   | 0.90 | 1.00 |
+| Hepatitis  | 0.31 | 0.79 |
+| Lymphography  | 0.85 | 0.84 |
+| Mammographic  | 0.81 | 0.81  |
+| Mutagenesis  | 0.93 | 1.00  |
+| NCTRER  | 0.98 | 1.00  |
+| Premier League | 0.96 | 1.00 |
+| Pyrimidine  | 0.73  | 0.91 |
+
 ## Fitness Function
 
 Showing the influence of different settings of the weight parameter of the fitness function.

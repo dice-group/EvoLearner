@@ -54,8 +54,8 @@ def read_config(path):
     return settings
 
 def validate(evo_obj, results, pos_examples, neg_examples):
-    pos = evo_obj._parse_examples(pos_examples)
-    neg = evo_obj._parse_examples(neg_examples)
+    pos = set(pos_examples)
+    neg = set(neg_examples)
 
     concept = gp.compile(results[0], evo_obj.pset)
 

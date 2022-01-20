@@ -1,3 +1,0 @@
-http://dl-learner.org/benchmark/dataset/animals#eagle01
-http://dl-learner.org/benchmark/dataset/animals#ostrich01
-http://dl-learner.org/benchmark/dataset/animals#penguin01

@@ -1,4 +1,3 @@
-import plistlib
 import sys
 
 file_name = sys.argv[1]
@@ -15,5 +14,5 @@ with open(file_name, 'w') as fl:
     fl.write("\t\tcrossValidationFolds = 10;\n")
     fl.write(f"\t\tmaxExecutionTime = {time};\n")
     fl.write("\t};\n")
-    fl.write(f"\tresultOutput = testResult.xml;\n")
+    fl.write("\tresultOutput = testResult.xml;\n")
     fl.write("}\n")

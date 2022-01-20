@@ -8,6 +8,5 @@ from .concept import Concept # noqa
 from .evo_learner import EvoLearner # noqa
 from .fitness_functions import * # noqa
 from .gen_trees import * # noqa
-from .model_selection import * # noqa
 from .gp_utils import * # noqa
 from .value_splitter import * # noqa

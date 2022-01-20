@@ -43,7 +43,7 @@ class BaseConcept(metaclass=ABCMeta):
         """ Returns all instances belonging to the concept."""
         if self.__instances is not None:
             return self.__instances
-        self.__instances = {jjj.name
+        self.__instances = {get_full_iri(jjj)
                             for jjj in self.owl.instances(world=self.world)}
         return self.__instances
 

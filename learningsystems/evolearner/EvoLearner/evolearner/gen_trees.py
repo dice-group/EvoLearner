@@ -176,14 +176,18 @@ def build_tree(ind, evo_learner, ind_size, types=None,
                 add_intersection_or_union(expr, pset)
 
             if isinstance(properties[i][0], ObjectPropertyClass):
-                build_object_property(expr, ind, properties[i], pset, evo_learner)
+                build_object_property(expr, ind, properties[i],
+                                      pset, evo_learner)
             elif isinstance(properties[i][0], AnnotationPropertyClass):
-                build_float_property(expr, ind, properties[i], pset, evo_learner)
+                build_float_property(expr, ind, properties[i],
+                                     pset, evo_learner)
             elif properties[i][0].range[0] == bool:
-                build_bool_property(expr, ind, properties[i], pset, evo_learner)
+                build_bool_property(expr, ind, properties[i],
+                                    pset, evo_learner)
             elif properties[i][0].range[0] == float or \
                  properties[i][0].range[0] == int:
-                build_float_property(expr, ind, properties[i], pset, evo_learner)
+                build_float_property(expr, ind, properties[i],
+                                     pset, evo_learner)
 
     return expr
 

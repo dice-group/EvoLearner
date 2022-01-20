@@ -4,13 +4,18 @@ import sys
 import collections
 import pandas as pd
 
+
 def length_manchester(concept_string):
     return len(concept_string.split()) - concept_string.count("[")
+
 
 def length_evo(concept_string):
     concept_string = concept_string.replace(",", "")
     concept_string = concept_string.replace("(", " ")
-    return len(concept_string.split()) + sum(map(concept_string.count, ("exists", "forall", "someValues", "hasValue", "cargeq", "carleq")))
+    return len(concept_string.split()) + \
+        sum(map(concept_string.count, ("exists", "forall", "someValues",
+                                       "hasValue", "cargeq", "carleq")))
+
 
 def get_averages(f):
     root = ET.parse(f).getroot()
@@ -128,8 +133,6 @@ if __name__ == "__main__":
                             means.append(statistics.mean(values))
                             stdevs.append(statistics.stdev(values))
 
-
-
                     if len(means) == len(sys.argv) - 2:
                         current_mean = round(statistics.mean(means), 2)
                         current_stdev = round(statistics.mean(stdevs), 2)
@@ -146,12 +149,11 @@ if __name__ == "__main__":
                 elif system == "aleph_swipl":
                     vals_length.append((None))
 
-
-    df = pd.DataFrame(data_acc, index =systems)
+    df = pd.DataFrame(data_acc, index=systems)
     df.to_csv(sys.argv[-1] + 'acc')
 
-    df = pd.DataFrame(data_f1, index =systems)
+    df = pd.DataFrame(data_f1, index=systems)
     df.to_csv(sys.argv[-1] + 'f1')
 
-    df = pd.DataFrame(data_length, index =systems)
+    df = pd.DataFrame(data_length, index=systems)
     df.to_csv(sys.argv[-1] + 'length')

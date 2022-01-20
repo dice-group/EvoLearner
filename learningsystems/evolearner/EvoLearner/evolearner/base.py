@@ -4,7 +4,6 @@ import owlready2
 from .concept_generator import ConceptGenerator
 from .concept import Concept
 from typing import Dict, Tuple, Set, Generator, Iterable
-from .util import parametrized_performance_debugger
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -23,9 +22,9 @@ class KnowledgeBase:
 
         if use_pellet:
             with self.onto:
-                sync_reasoner_pellet(x = self.onto.world,
-                                     infer_property_values = True,
-                                     infer_data_property_values = True)
+                sync_reasoner_pellet(x=self.onto.world,
+                                     infer_property_values=True,
+                                     infer_data_property_values=True)
 
         self.name = self.onto.name
         self.concepts = dict()
@@ -203,13 +202,11 @@ class KnowledgeBase:
         """ Return a Concept object that is a negation of given concept."""
         return self.__concept_generator.negation(concept)
 
-    @parametrized_performance_debugger()
     def negation_from_iterables(self, s: Generator):
         """ Return : { x | ( x \\equv not s} """
         for item in s:
             yield self.__concept_generator.negation(item)
 
-    @parametrized_performance_debugger()
     def get_direct_sub_concepts(self, concept: Concept):
         """ Return : { x | ( x subClassOf concept )} """
         for v in self.top_down_direct_concept_hierarchy[concept]:

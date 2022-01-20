@@ -43,7 +43,6 @@ class ConceptGenerator:
         for i in instances:
             i.is_a.append(new_concept)
 
-    # TODO: Rewrite/optimize this
     def get_instances_for_restrictions(self, exist, role, filler):
         pairs_dict = self.kb.role_log[role]
 
@@ -60,7 +59,6 @@ class ConceptGenerator:
                     temp.update(pairs_dict[y])
             return self.T.instances - temp
 
-    # TODO: Rewrite/optimize this
     def get_instances_value_restriction(self, role, value, facet):
         val_dict = self.kb.role_log[role]
 
@@ -80,7 +78,6 @@ class ConceptGenerator:
 
         return temp
 
-    # TODO: Rewrite/optimize this
     def get_instances_card_restriction(self, role, value,
                                        concept, facet):
         pairs_dict = self.kb.role_log_cardinality[role]

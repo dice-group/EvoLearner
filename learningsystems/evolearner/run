@@ -161,8 +161,8 @@ if __name__ == '__main__':
 
     evo = EvoLearner(kb, terminate_on_goal=False, max_r=max_neighbours,
                      expressivity=expressivity, init_method=init_method,
-                     random_max_height=random_max_height, random_walk_type=random_walk_type,
-                     random_walk_paths=random_walk_paths, x=x)
+                     random_max_height=random_max_height, rw_type=random_walk_type,
+                     rw_paths=random_walk_paths, x=x)
 
     if mutation == "nodeReplacement":
         evo.register_op("mutate", gp.mutNodeReplacement, pset=evo.pset)

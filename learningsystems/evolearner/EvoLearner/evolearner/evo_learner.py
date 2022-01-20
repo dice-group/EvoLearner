@@ -7,7 +7,7 @@ from deap import gp
 from owlready2 import AnnotationPropertyClass, DataPropertyClass, datetime
 
 from evolearner import Concept
-from .util import escape
+from .util import escape, get_full_iri
 from evolearner import ea_algorithms
 from evolearner import fitness_functions
 from evolearner import gen_trees
@@ -24,8 +24,8 @@ class EvoLearner:
                  expressivity="ALC(D)N",
                  dp_splitter=None,
                  terminate_on_goal=False,
-                 random_walk_type=True,
-                 random_walk_paths=True,
+                 rw_type=True,
+                 rw_paths=True,
                  population_size=800,
                  ngen=200,
                  max_r=2,
@@ -41,8 +41,8 @@ class EvoLearner:
         self.dp_splitter = dp_splitter
         self.expressivity = expressivity
         self.terminate_on_goal = terminate_on_goal
-        self.random_walk_type = random_walk_type
-        self.random_walk_paths = random_walk_paths
+        self.rw_type = rw_type
+        self.rw_paths = rw_paths
         self.height_limit = height_limit
         self.random_max_height = random_max_height
         self.ngen = ngen
@@ -112,18 +112,22 @@ class EvoLearner:
             pairs = list(property_.get_relations())
             pairs_dict = {}
             for x, y in pairs:
-                if y.name in pairs_dict:
-                    pairs_dict[y.name].append(x.name)
+                x_iri = get_full_iri(x)
+                y_iri = get_full_iri(y)
+                if y_iri in pairs_dict:
+                    pairs_dict[y_iri].append(x_iri)
                 else:
-                    pairs_dict[y.name] = [x.name]
+                    pairs_dict[y_iri] = [x_iri]
             self.kb.role_log[property_] = pairs_dict
 
             pairs_dict = {}
             for x, y in pairs:
-                if x.name in pairs_dict:
-                    pairs_dict[x.name].add(y.name)
+                x_iri = get_full_iri(x)
+                y_iri = get_full_iri(y)
+                if x_iri in pairs_dict:
+                    pairs_dict[x_iri].add(y_iri)
                 else:
-                    pairs_dict[x.name] = {y.name}
+                    pairs_dict[x_iri] = {y_iri}
             self.kb.role_log_cardinality[property_] = pairs_dict
 
             existential, universal = (
@@ -157,7 +161,8 @@ class EvoLearner:
                     pairs = list(property_.get_relations())
                     val_dict = {}
                     for x, y in pairs:
-                        val_dict[x.name] = y
+                        x_iri = get_full_iri(x)
+                        val_dict[x_iri] = y
                     self.kb.role_log[property_] = val_dict
 
                     geq, leq = self.prim_gen.create_data_some_values(property_)
@@ -175,7 +180,8 @@ class EvoLearner:
                     pairs = list(property_.get_relations())
                     val_dict = {}
                     for x, y in pairs:
-                        val_dict[x.name] = y
+                        x_iri = get_full_iri(x)
+                        val_dict[x_iri] = y
                     self.kb.role_log[property_] = val_dict
 
                     data_prim = self.prim_gen.create_data_has_value(property_)
@@ -270,28 +276,27 @@ class EvoLearner:
 
             self.__set_splitting_values()
 
-        self.pos = self._parse_examples(pos)
-        self.neg = self._parse_examples(neg)
+        self.pos = set(pos)
+        self.neg = set(neg)
 
-        if self.algorithm == ea_algorithms.ea_simple:
-            if self.init_method == "random_full":
-                population = self.init_random(genFull,
-                                              size=self.population_size,
-                                              max_=self.random_max_height)
-            elif self.init_method == "random_grow":
-                population = self.init_random(genGrow,
-                                              size=self.population_size,
-                                              max_=self.random_max_height)
-            elif self.init_method == "random_rhh":
-                population = self.init_random(genHalfAndHalf,
-                                              size=self.population_size,
-                                              max_=self.random_max_height)
-            elif self.init_method == "random_walk":
-                population = gen_trees.init_random_walk(self, pos, neg,
-                                                        self.population_size,
-                                                        ind_size=self.max_r,
-                                                        use_type=self.random_walk_type,
-                                                        use_paths=self.random_walk_paths)
+        if self.init_method == "random_full":
+            population = self.init_random(genFull,
+                                          size=self.population_size,
+                                          max_=self.random_max_height)
+        elif self.init_method == "random_grow":
+            population = self.init_random(genGrow,
+                                          size=self.population_size,
+                                          max_=self.random_max_height)
+        elif self.init_method == "random_rhh":
+            population = self.init_random(genHalfAndHalf,
+                                          size=self.population_size,
+                                          max_=self.random_max_height)
+        elif self.init_method == "random_walk":
+            population = gen_trees.init_random_walk(self, pos, neg,
+                                                    self.population_size,
+                                                    ind_size=self.max_r,
+                                                    use_type=self.rw_type,
+                                                    use_paths=self.rw_paths)
 
         self.result_population = self.algorithm(self.toolbox,
                                                 population,
@@ -328,7 +333,8 @@ class EvoLearner:
         concept = gp.compile(individual, self.pset)
         quality = self.quality_func(concept, self.pos, self.neg)
         individual.quality.values = (quality,)
-        fitness = self.heuristic_func(individual, concept, self.pos, self.neg, x=self.x)
+        fitness = self.heuristic_func(individual, concept, self.pos,
+                                      self.neg, x=self.x)
         individual.fitness.values = (fitness,)
 
     def print_top_n_individuals(self, individuals, top_n=5, key='fitness'):
@@ -390,13 +396,3 @@ class EvoLearner:
                              p.range[0] == datetime.date)))]
             inds_props[example] = (ind, properties)
         return inds_props
-
-    def _parse_examples(self, examples):
-        new_examples = set()
-        for example in examples:
-            index = example.find("#")
-            if index != -1:
-                new_examples.add(example[index + 1:])
-            else:
-                new_examples.add(example[example.rfind("/") + 1:])
-        return new_examples
