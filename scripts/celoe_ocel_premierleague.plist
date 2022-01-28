@@ -1,0 +1,12 @@
+{
+  config = 1;
+  learningsystems = ( celoe, ocel );
+  scenarios = ( premierleague/1);
+
+  measures = ( fmeasure, pred_acc );
+  framework = {
+    crossValidationFolds = 10;
+    maxExecutionTime = 500;
+  };
+  resultOutput = testResult.xml;
+}

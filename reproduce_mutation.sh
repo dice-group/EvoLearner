@@ -23,11 +23,11 @@ run() {
 
 mkdir -p results
 
-parameters=("uniform" "shrink" "nodeReplacement" "insert" "crossleafbiased")
+parameters=("uniform" "shrink" "nodeReplacement" "insert")
 for j in "${parameters[@]}"
 do
     run $j
 done
 
-python scripts/combine_frames_misc.py "${parameters[@]/%/f1}" "results/EvoLearner_Mutation.md"
+python scripts/combine_frames.py "${parameters[@]/%/f1}" "results/EvoLearner_Mutation.md"
 rm -rf *"f1" *"acc" *"length" "sml-temp"*

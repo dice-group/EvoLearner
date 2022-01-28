@@ -1,5 +1,11 @@
 #!/bin/bash
 
+add_line() {
+    sed '$d' "temp1$2" > "$1$2"
+    tail -1 "temp2$2" >> "$1$2"
+    tail -1 "temp1$2" >> "$1$2"
+}
+
 config_file="learningsystems/evolearner/evo_config.prop"
 name="EvoLearner_SPaCEL"
 name2="CELOE_OCEL"
@@ -22,7 +28,16 @@ rm "${results[@]}"
 
 # Run CELOE, OCEL
 mvn -e exec:java -Dexec.mainClass=org.aksw.mlbenchmark.Benchmark -Dexec.args=scripts/celoe_ocel.plist
-python scripts/sml_parser.py testResult.xml "$name2"
+python scripts/sml_parser.py testResult.xml "temp1"
+mvn -e exec:java -Dexec.mainClass=org.aksw.mlbenchmark.Benchmark \
+    -Dexec.args=scripts/celoe_ocel_premierleague.plist
+python scripts/sml_parser.py testResult.xml "temp2"
+# Merge premierleague into the second last line in the tables with all datasets for CELOE and OCEL
+add_line "$name2" "f1"
+add_line "$name2" "acc"
+add_line "$name2" "length"
+rm "temp1"* "temp2"*
+
 
 # Run Aleph
 mvn -e exec:java -Dexec.mainClass=org.aksw.mlbenchmark.Benchmark -Dexec.args=scripts/aleph.plist

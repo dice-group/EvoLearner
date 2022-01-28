@@ -23,11 +23,11 @@ run() {
 
 mkdir -p results
 
-parameters=(1 2 4 6 8 10)
+parameters=(1 2 4 6)
 for j in "${parameters[@]}"
 do
     run $j
 done
 
-python scripts/combine_frames_misc.py "${parameters[@]/%/f1}" "results/EvoLearner_maxT.md"
+python scripts/combine_frames.py "${parameters[@]/%/f1}" "results/EvoLearner_maxT.md"
 rm -rf *"f1" *"acc" *"length" "sml-temp"*

@@ -121,10 +121,6 @@ def init_random_walk(evo_learner, pos, neg, population_size,
 def build_tree(ind, evo_learner, ind_size, types=None,
                use_type=True, use_paths=True):
     pset = evo_learner.pset
-
-    if len(pset.primitives[Concept]) <= 3:
-        return build_only_types(ind, evo_learner, ind_size, types)
-
     properties = list(ind.get_properties())
     properties = sorted(properties, key=lambda x: str(x))
 
@@ -162,7 +158,7 @@ def build_tree(ind, evo_learner, ind_size, types=None,
     properties = prop_objs
     expr = []
 
-    if use_type and use_paths:
+    if use_type and use_paths and len(properties) > 0:
         add_intersection_or_union(expr, pset)
 
     if use_type:
@@ -236,21 +232,6 @@ def filter_types(ind, types):
         weights.append(types[t])
 
     return types_ind, weights
-
-
-def build_only_types(ind, evo_learner, ind_size, types):
-    types_ind, weights = filter_types(ind, types)
-    if len(types_ind) > ind_size:
-        types_ind = random.choices(types_ind, weights, k=ind_size)
-
-    expr = []
-    for idx, type_ in enumerate(types_ind):
-        if idx != len(types_ind) - 1:
-            add_intersection_or_union(expr, evo_learner.pset)
-        add_object_terminal(expr, evo_learner.pset, type_)
-
-    return expr
-
 
 def build_bool_property(expr, ind, property_, pset, evo):
     prop = "hasValue" + util.escape(str(property_[0]))

@@ -58,9 +58,13 @@ then
     # if smlb_loadingTime is not set
     if [ -z "${smlb_loadingTime+'foo'}" ]
     then
-        smlb_loadingTime=200
+        if [ "$smlb_learningtask" = "premierleague" ]
+        then
+            smlb_loadingTime=200
+        else
+            smlb_loadingTime=30
+        fi
     fi
-    
     new_maxExecutionTime="$((smlb_maxExecutionTime-smlb_loadingTime))"
     # Only assign the resulting max. execution time if it is greater than 0!
     # If it is 0 the DL-Learner will run forever.

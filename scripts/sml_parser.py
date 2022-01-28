@@ -150,10 +150,10 @@ if __name__ == "__main__":
                     vals_length.append((None))
 
     df = pd.DataFrame(data_acc, index=systems)
-    df.to_csv(sys.argv[-1] + 'acc')
+    df.T.to_csv(sys.argv[-1] + 'acc')
 
     df = pd.DataFrame(data_f1, index=systems)
-    df.to_csv(sys.argv[-1] + 'f1')
+    df.T.to_csv(sys.argv[-1] + 'f1')
 
     df = pd.DataFrame(data_length, index=systems)
-    df.to_csv(sys.argv[-1] + 'length')
+    df.T.to_csv(sys.argv[-1] + 'length')

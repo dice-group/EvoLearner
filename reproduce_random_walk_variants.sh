@@ -13,7 +13,7 @@ run() {
         add_to_file "seed = $i"
         add_to_file "init_method = $1"
         mvn -e exec:java -Dexec.mainClass=org.aksw.mlbenchmark.Benchmark \
-            -Dexec.args=scripts/evolearner_wo_lymphography.plist
+            -Dexec.args=scripts/evolearner_ablation.plist
         mv testResult.xml "$1_$i.xml" && results+=("$1_$i.xml")
         rm "$config_file"
     done
@@ -30,6 +30,6 @@ do
     run $j
 done
 
-python scripts/combine_frames_misc.py "${parameters[@]/%/f1}" \
+python scripts/combine_frames.py "${parameters[@]/%/f1}" \
     "results/EvoLearner_Random_Walk_Variants.md"
 rm -rf *"f1" *"acc" *"length" "sml-temp"*

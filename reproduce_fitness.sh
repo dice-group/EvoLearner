@@ -29,5 +29,5 @@ do
     run $j
 done
 
-python scripts/combine_frames_misc.py "${parameters[@]/%/f1}" "results/EvoLearner_Fitness.md"
+python scripts/combine_frames.py "${parameters[@]/%/f1}" "results/EvoLearner_Fitness.md"
 rm -rf *"f1" *"acc" *"length" "sml-temp"*
