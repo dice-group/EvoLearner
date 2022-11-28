@@ -1,4 +1,4 @@
-## Note: Use this repository to reproduce the exact numbers from the paper, otherwise try out the new implementation of EvoLearner that is part of [Ontolearn](https://github.com/dice-group/Ontolearn) (work in progress)
+## Note: Use this repository to reproduce the exact numbers from the paper, otherwise try out the new implementation of EvoLearner that is part of [Ontolearn](https://github.com/dice-group/Ontolearn)
 # EvoLearner: Learning Description Logics with Evolutionary Algorithms
 
 This repository contains code to reproduce the results of our paper ```EvoLearner: Learning Description Logics with Evolutionary Algorithms```.
